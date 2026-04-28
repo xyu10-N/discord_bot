@@ -1,0 +1,9 @@
+services:
+  bot:
+    build: .
+    container_name: discord_bot
+    # エラーで停止した場合も自動再起動（手動で停止した場合は再起動しない）
+    restart: unless-stopped
+    # .env ファイルから環境変数を読み込む
+    env_file:
+      - .env
