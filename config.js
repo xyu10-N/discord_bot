@@ -9,8 +9,22 @@ const EMOJI_ID = {
     otukare: '1220761762278801589',
     life: '1217870516820639815',
     hona_1: '1209131366193700875',
+    hona_4: '1498733118289350758'
 }
+
+const REGULAR_TIME = {
+    check: 42,
+    result: 50,
+    remind: 58,
+}
+
 module.exports = {
+    // 絵文字ID
+    EMOJI_ID,
+
+    // 時間設定
+    REGULAR_TIME,
+
     // 数字を監視するチャンネルのID（複数可）
     CHANNELS_FOR_NUMBER: [CHANNEL_ID.test, CHANNEL_ID.kikisen, CHANNEL_ID.heyaban],
 
