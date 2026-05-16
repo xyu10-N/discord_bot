@@ -95,6 +95,7 @@ client.once('clientReady', async () => {
                 .addIntegerOption(opt => opt.setName('result').setDescription('結果時間（分）0-59').setMinValue(0).setMaxValue(59))
                 .addIntegerOption(opt => opt.setName('remind').setDescription('リマインド時間（分）0-59').setMinValue(0).setMaxValue(59))
             )
+            .addSubcommand(sub => sub.setName('oracle').setDescription('今日の運勢を占う'))
             .toJSON()
     ];
 
@@ -236,6 +237,27 @@ client.on('interactionCreate', async (interaction) => {
 
         return interaction.reply({ content: replyMessage, ephemeral: false });
     }
+
+    // /hona oracle - 占い機能
+    if (subcommand === 'oracle') {
+        const fortunes = config.FORTUNES;
+
+        const rand = Math.random() * 100;
+        let cumulative = 0;
+        let selectedFortune = fortunes[fortunes.length - 1];
+
+        for (const fortune of fortunes) {
+            cumulative += fortune.chance;
+            if (rand < cumulative) {
+                selectedFortune = fortune;
+                break;
+            }
+        }
+
+        return interaction.reply({
+            content: `${interaction.user} さんのおみくじの結果は...\n\n**【 ${selectedFortune.name} 】**\n${selectedFortune.comment}`
+        });
+    }
 });
 
 // 💬 メッセージが送信された時の処理
@@ -254,7 +276,7 @@ client.on('messageCreate', async (message) => {
             const renameChannel = message.guild.channels.cache.get(config.RENAME_CHANNEL_ID);
             if (renameChannel) {
                 try {
-                    await renameChannel.setName(`部屋番号【${message.content}】`);
+                    await renameChannel.setName(`🆔│【${message.content}】`);
                     renameChannel.send(message.content);
                 } catch (error) {
                     renameChannel.send('❌ 部屋番号の変更に失敗しました。（※Discordの制限により、名前変更は10分間に2回までです）');
