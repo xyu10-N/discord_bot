@@ -1,5 +1,5 @@
 # ベースイメージとしてNode.js 20の軽量版を利用
-FROM node:20-slim
+FROM node:22-slim
 
 # pnpmを有効化
 ENV PNPM_HOME="/pnpm"
