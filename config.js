@@ -44,7 +44,7 @@ module.exports = {
     RENAME_CHANNEL_ID: CHANNEL_ID.heyaban,
 
     // 定期メッセージを送信するチャンネルのID
-    LOOP_CHANNEL_ID: CHANNEL_ID.test,
+    LOOP_CHANNEL_ID: CHANNEL_ID.kikisen,
 
     // 占い設定
     FORTUNES,
