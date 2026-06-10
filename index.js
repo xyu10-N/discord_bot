@@ -56,7 +56,11 @@ function startTimers(targetChannel) {
             resultMessage += '**🔴 なし:**\n' + (noRes.length > 0 ? noRes.map(id => `<@${id}>`).join(' ') : '') + '\n';
             resultMessage += '**🔵 ココ:**\n' + (kokoRes.length > 0 ? kokoRes.map(id => `<@${id}>`).join(' ') : '') + '\n(敬称略)';
 
-            targetChannel.send(resultMessage);
+            // メンション通知を発生させないように送信
+            targetChannel.send({
+                content: resultMessage,
+                allowedMentions: { parse: [] }
+            });
 
             const delayToRemind = (config.REGULAR_TIME.remind - config.REGULAR_TIME.result) * 60 * 1000;
             setTimeout(() => {
