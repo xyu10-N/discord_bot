@@ -115,23 +115,51 @@ client.once('clientReady', async () => {
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
         if (['next_server_yes', 'next_server_no', 'next_server_koko'].includes(interaction.customId)) {
-            const userId = interaction.user.id;
+            try {
+                // 3秒タイムアウトを防ぐため、即座に応答を保留（応答制限時間を15分に延長）
+                await interaction.deferReply({ ephemeral: true });
 
-            if (interaction.customId === 'next_server_yes') {
-                nextServerResponses.no.delete(userId);
-                nextServerResponses.koko.delete(userId);
-                nextServerResponses.yes.add(userId);
-                await interaction.reply({ content: '次鯖ありで受付しました！', ephemeral: true });
-            } else if (interaction.customId === 'next_server_no') {
-                nextServerResponses.yes.delete(userId);
-                nextServerResponses.koko.delete(userId);
-                nextServerResponses.no.add(userId);
-                await interaction.reply({ content: '次鯖なしで受付しました！', ephemeral: true });
-            } else if (interaction.customId === 'next_server_koko') {
-                nextServerResponses.yes.delete(userId);
-                nextServerResponses.no.delete(userId);
-                nextServerResponses.koko.add(userId);
-                await interaction.reply({ content: '次鯖ココで受付しました！', ephemeral: true });
+                // アンケート受付期間外（isCheckingがfalse）の場合は受付終了を通知
+                if (!isChecking) {
+                    await interaction.editReply({ content: '⚠️ 現在は次鯖アンケートの受付期間外です。' });
+                    return;
+                }
+
+                const userId = interaction.user.id;
+                let replyContent = '';
+
+                if (interaction.customId === 'next_server_yes') {
+                    nextServerResponses.no.delete(userId);
+                    nextServerResponses.koko.delete(userId);
+                    nextServerResponses.yes.add(userId);
+                    replyContent = '次鯖ありで受付しました！';
+                } else if (interaction.customId === 'next_server_no') {
+                    nextServerResponses.yes.delete(userId);
+                    nextServerResponses.koko.delete(userId);
+                    nextServerResponses.no.add(userId);
+                    replyContent = '次鯖なしで受付しました！';
+                } else if (interaction.customId === 'next_server_koko') {
+                    nextServerResponses.yes.delete(userId);
+                    nextServerResponses.no.delete(userId);
+                    nextServerResponses.koko.add(userId);
+                    replyContent = '次鯖ココで受付しました！';
+                }
+
+                // 保留していた応答を結果メッセージで更新
+                await interaction.editReply({ content: replyContent });
+            } catch (error) {
+                console.error('ボタンインタラクションでエラーが発生しました:', error);
+
+                // エラーが発生した場合もユーザーにフィードバックを返す
+                try {
+                    if (interaction.deferred || interaction.replied) {
+                        await interaction.editReply({ content: '⚠️ 処理中にエラーが発生しました。もう一度お試しください。' });
+                    } else {
+                        await interaction.reply({ content: '⚠️ 処理中にエラーが発生しました。もう一度お試しください。', ephemeral: true });
+                    }
+                } catch (e) {
+                    console.error('エラー通知の送信に失敗しました:', e);
+                }
             }
         }
         return;
